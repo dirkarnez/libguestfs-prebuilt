@@ -13,10 +13,10 @@ jobs:
     strategy:
       matrix:
         compiler:
-        - {
-            name: "x86_64-8.1.0-release-posix-seh-rt_v6-rev0",
-            url: "https://github.com/dirkarnez/cpp-tools/raw/main/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z"
-          }
+        # - {
+        #     name: "x86_64-8.1.0-release-posix-seh-rt_v6-rev0",
+        #     url: "https://github.com/dirkarnez/cpp-tools/raw/main/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z"
+        #   }
         - {
             name: "winlibs-x86_64-posix-seh-gcc-11.2.0-mingw-w64-9.0.0-r1",
             url: "https://github.com/brechtsanders/winlibs_mingw/releases/download/11.2.0-12.0.1-9.0.0-r1/winlibs-x86_64-posix-seh-gcc-11.2.0-mingw-w64-9.0.0-r1.zip"
@@ -28,8 +28,7 @@ jobs:
     runs-on: windows-latest
     env:
       libraryName: libguestfs
-      cmakeInstallationPath: libguestfs-installation
-      tagName: <span style="color: red">HttpError: Not Found<span><br>
+      tagName: v1.59.8
     steps:
     
       - uses: actions/checkout@v4
@@ -94,6 +93,76 @@ jobs:
       #       -DBUILD_SHARED_LIBS=OFF ^
       #       -DCMAKE_INSTALL_PREFIX="cmake-build/${{ env.cmakeInstallationPath }}" -B./cmake-build &&^
       #       cd cmake-build && cmake --build . --config Release && cmake --install . 
+
+
+# # Run the jobs below on every push to master branch and pull request.
+# on:
+#   push:
+#     branches:
+#       - master
+#       - 'ci/**'  # Allow automatic CI testing on ci/* branches
+#   pull_request:
+#     branches:
+#       - master
+#   workflow_dispatch:  # Allow manual triggering on any branch
+
+# # Runs basic configure, make and make check.
+# jobs:
+#   ubuntu:
+#     name: Ubuntu
+#     runs-on: ubuntu-${{ matrix.release }}
+#     continue-on-error: true
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         release:
+#           - 24.04
+
+#     steps:
+#       - name: Identify the system
+#         run: |
+#           cat /etc/os-release
+
+#       - name: Enable source repositories
+#         run: |
+#           sudo sed -i 's/Types: deb$/Types: deb deb-src/g' \
+#                    /etc/apt/sources.list.d/ubuntu.sources
+
+#       - name: Install build dependencies
+#         run: |
+#           sudo apt-get update
+#           sudo apt-get -y build-dep libguestfs
+
+#       - name: Install extra dependencies
+#         run: |
+#           # Git is needed to run git submodule command.
+#           # json-c is missing from the Ubuntu package deps.
+#           # python libvirt module used unconditionally in a python test
+#           sudo apt-get -y install git libjson-c-dev python3-libvirt
+
+#       - name: Fix broken Ubuntu kernel permissions
+#         run: |
+#           # https://bugs.launchpad.net/ubuntu/+source/linux/+bug/759725
+#           sudo chmod 0644 /boot/vmlinuz*
+
+#       - name: Enable KVM
+#         run: |
+#           sudo chmod 0666 /dev/kvm
+
+#       - name: Checkout sources
+#         uses: actions/checkout@v5
+
+#       - name: Checkout submodule
+#         run: |
+#           git submodule update --init
+
+#       - name: Compile the code
+#         run: |
+#           autoreconf -fiv
+#           # --disable-ruby needed for
+#           # https://github.com/libguestfs/libguestfs/issues/309
+#           ./configure --enable-werror --disable-ruby
+#           make -j
             
       - name: set PATH, check mingw version, cmake generate, build and install
         if: ${{ matrix.compiler.url }}
